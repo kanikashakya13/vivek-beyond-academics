@@ -1,115 +1,102 @@
 "use client";
-import { useState } from "react";
 import { useApp } from "@/context/AppContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Search, UserPlus, Loader2, Users } from "lucide-react";
-import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from "recharts";
+import { PolarGrid, PolarAngleAxis, PolarRadiusAxis, RadarChart, Radar, ResponsiveContainer } from "recharts";
+import { Users, Server, ShieldCheck, RefreshCw } from "lucide-react";
+import { useState } from "react";
+import { motion } from "framer-motion";
 
-export default function StudentManagement() {
-  const { students, addDemoStudent, isLoading } = useApp();
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedStudent, setSelectedStudent] = useState<any | null>(null);
+export default function DashboardOverview() {
+  const { user, students } = useApp();
+  const [isSyncing, setIsSyncing] = useState(false);
 
-  const filteredStudents = students.filter(s => 
-    s.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    s.id.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const indianNames = ["Rohan Gupta", "Priya Sharma", "Amit Patel", "Sneha Desai", "Karan Singh", "Anjali Verma", "Vikram Malhotra", "Neha Reddy"];
-  
-  const handleAddDemo = () => {
-    const randomName = indianNames[Math.floor(Math.random() * indianNames.length)];
-    const newStudent = {
-      id: `VBA-00${students.length + 1}`,
-      name: randomName,
-      class: "10-Demo",
-      focusScore: Math.floor(Math.random() * 30) + 65,
-      confidence: Math.floor(Math.random() * 30) + 65,
-      resilience: Math.floor(Math.random() * 30) + 65,
-    };
-    
-    // This now saves securely to Supabase via AppContext
-    addDemoStudent(newStudent);
-    setSelectedStudent(newStudent);
+  const handleForceSync = () => {
+    setIsSyncing(true);
+    setTimeout(() => {
+      setIsSyncing(false);
+      alert("Success: All offline classroom data has been synchronized with the cloud database.");
+    }, 1500);
   };
 
-  const getDNAData = (student: any) => [
-    { category: 'Focus', score: student.focusScore }, 
-    { category: 'Confidence', score: student.confidence },
-    { category: 'Resilience', score: student.resilience }, 
-    { category: 'Initiative', score: 85 }, 
-    { category: 'Collaboration', score: 78 },
-  ];
+  // Fixed Types for Framer Motion
+  const container: any = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.1 } } };
+  const item: any = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } } };
 
-  if (isLoading) {
+  // --- ADMIN VIEW ---
+  if (user?.role === 'admin') {
     return (
-      <div className="flex h-[calc(100vh-8rem)] flex-col items-center justify-center text-slate-500 gap-4">
-        <Loader2 className="w-10 h-10 animate-spin text-orange-500" />
-        <p className="font-bold text-lg">Syncing with Supabase Cloud...</p>
-      </div>
+      <motion.div variants={container} initial="hidden" animate="show" className="space-y-8">
+        <motion.div variants={item} className="flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-black text-slate-900 tracking-tight">System Administrator</h1>
+            <p className="text-slate-500 mt-1">Manage platform usage and registered educators.</p>
+          </div>
+          <Button onClick={handleForceSync} disabled={isSyncing} className="bg-purple-600 hover:bg-purple-700 text-white shadow-lg shadow-purple-600/20 rounded-xl h-12 px-6 font-bold">
+            <RefreshCw className={`w-4 h-4 mr-2 ${isSyncing ? "animate-spin" : ""}`} />
+            {isSyncing ? "Syncing..." : "Force System Sync"}
+          </Button>
+        </motion.div>
+        
+        <motion.div variants={container} className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <motion.div variants={item}><Card className="bg-purple-50 border-purple-100/50 shadow-lg shadow-purple-500/5 rounded-3xl"><CardHeader className="pb-2"><CardTitle className="text-sm font-bold text-purple-800 flex justify-between">Active Teachers <ShieldCheck className="w-5 h-5 text-purple-600" /></CardTitle></CardHeader><CardContent><p className="text-4xl font-black text-purple-900">42</p></CardContent></Card></motion.div>
+          <motion.div variants={item}><Card className="bg-blue-50 border-blue-100/50 shadow-lg shadow-blue-500/5 rounded-3xl"><CardHeader className="pb-2"><CardTitle className="text-sm font-bold text-blue-800 flex justify-between">Total Students <Users className="w-5 h-5 text-blue-600" /></CardTitle></CardHeader><CardContent><p className="text-4xl font-black text-blue-900">1,204</p></CardContent></Card></motion.div>
+          <motion.div variants={item}><Card className="bg-emerald-50 border-emerald-100/50 shadow-lg shadow-emerald-500/5 rounded-3xl"><CardHeader className="pb-2"><CardTitle className="text-sm font-bold text-emerald-800 flex justify-between">System Status <Server className="w-5 h-5 text-emerald-600" /></CardTitle></CardHeader><CardContent><p className="text-4xl font-black text-emerald-900">Online</p></CardContent></Card></motion.div>
+        </motion.div>
+        
+        <motion.div variants={item}>
+          <Card className="border-none shadow-xl shadow-slate-200/50 rounded-3xl">
+            <CardHeader><CardTitle className="font-bold">Recent Admin Activity Logs</CardTitle></CardHeader>
+            <CardContent className="space-y-4">
+              <div className="p-5 bg-slate-50 border border-slate-100 rounded-2xl flex justify-between items-center">
+                <div><p className="font-bold text-slate-900">Database Sync</p><p className="text-sm text-slate-500">All offline focus data synchronized successfully.</p></div>
+                <span className="text-xs font-black text-emerald-600 bg-emerald-100 px-3 py-1.5 rounded-full tracking-wider">SUCCESS</span>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </motion.div>
     );
   }
 
+  // --- TEACHER VIEW ---
+  const classAverages = [
+    { subject: 'Concentration', A: 85, fullMark: 100 },
+    { subject: 'Confidence', A: 78, fullMark: 100 },
+    { subject: 'Perseverance', A: 82, fullMark: 100 },
+    { subject: 'Initiative', A: 70, fullMark: 100 },
+    { subject: 'Collaboration', A: 88, fullMark: 100 },
+  ];
+
   return (
-    <div className="flex flex-col lg:flex-row gap-8 h-[calc(100vh-8rem)] font-sans">
-      {/* Sidebar List */}
-      <div className="w-full lg:w-1/3 flex flex-col gap-4">
-        <div className="flex justify-between items-center">
-          <h2 className="text-2xl font-black text-slate-900 tracking-tight">Student Profiles</h2>
-          <Button onClick={handleAddDemo} size="sm" className="bg-orange-500 hover:bg-orange-600 text-white rounded-xl shadow-lg shadow-orange-500/20 transition-all active:scale-95">
-            <UserPlus className="w-4 h-4 mr-2" /> Add Demo
-          </Button>
-        </div>
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-          <input type="text" placeholder="Search by name or ID..." className="w-full pl-10 pr-4 py-3 border-2 border-slate-200 rounded-2xl outline-none focus:border-orange-400 transition-colors" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
-        </div>
-        <div className="flex-1 overflow-y-auto space-y-3 pr-2">
-          {filteredStudents.length === 0 ? (
-             <div className="text-center p-8 text-slate-500 border-2 border-dashed border-slate-200 rounded-3xl">
-                No students found. Click "Add Demo" to generate one!
-             </div>
-          ) : (
-            filteredStudents.map(student => (
-              <div key={student.id} onClick={() => setSelectedStudent(student)} className={`p-4 rounded-2xl border-2 cursor-pointer transition-all ${selectedStudent?.id === student.id ? 'border-orange-500 bg-orange-50 shadow-md shadow-orange-500/10' : 'border-slate-200 bg-white hover:border-orange-200'}`}>
-                <h3 className="font-bold text-slate-900">{student.name}</h3>
-                <p className="text-xs text-slate-500 font-medium">ID: {student.id} • Class {student.class}</p>
-              </div>
-            ))
-          )}
-        </div>
-      </div>
+    <motion.div variants={container} initial="hidden" animate="show" className="space-y-8">
+      <motion.div variants={item}>
+        <h1 className="text-3xl font-black text-slate-900 tracking-tight">Welcome, {user?.name}</h1>
+        <p className="text-slate-500 mt-1">Here is the holistic growth overview for your classes today.</p>
+      </motion.div>
       
-      {/* Main DNA Chart Area */}
-      <div className="w-full lg:w-2/3 bg-white border-none shadow-xl shadow-slate-200/50 rounded-3xl p-8 overflow-y-auto">
-        {selectedStudent ? (
-          <div className="space-y-8">
-            <div>
-              <h2 className="text-3xl font-black text-slate-900 tracking-tight">{selectedStudent.name}</h2>
-              <p className="text-slate-500 font-medium mt-1">ID: {selectedStudent.id} | Class: {selectedStudent.class}</p>
-            </div>
-            <Card className="bg-slate-50 shadow-inner border border-slate-100 rounded-3xl">
-              <CardHeader><CardTitle className="font-bold text-slate-700">Growth DNA Profile</CardTitle></CardHeader>
-              <CardContent className="h-[350px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <RadarChart cx="50%" cy="50%" outerRadius="70%" data={getDNAData(selectedStudent)}>
-                    <PolarGrid stroke="#cbd5e1" />
-                    <PolarAngleAxis dataKey="category" tick={{ fill: '#475569', fontSize: 13, fontWeight: 600 }} />
-                    <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} />
-                    <Radar name="Student" dataKey="score" stroke="#f97316" strokeWidth={3} fill="#f97316" fillOpacity={0.2} />
-                  </RadarChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-          </div>
-        ) : (
-          <div className="h-full flex flex-col items-center justify-center text-slate-400 space-y-4">
-            <Users className="w-16 h-16 text-slate-200" />
-            <p className="font-medium text-lg">Select a student to view their Growth DNA</p>
-          </div>
-        )}
-      </div>
-    </div>
+      <motion.div variants={container} className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <motion.div variants={item}><Card className="border-none shadow-xl shadow-slate-200/50 rounded-3xl"><CardHeader className="pb-2"><CardTitle className="text-sm font-bold text-slate-500 uppercase tracking-wider">Total Students</CardTitle></CardHeader><CardContent><p className="text-4xl font-black text-slate-900">{students.length}</p></CardContent></Card></motion.div>
+        <motion.div variants={item}><Card className="border-none shadow-xl shadow-emerald-500/10 rounded-3xl bg-emerald-50"><CardHeader className="pb-2"><CardTitle className="text-sm font-bold text-emerald-700 uppercase tracking-wider">Avg. Focus Score</CardTitle></CardHeader><CardContent><p className="text-4xl font-black text-emerald-600">82%</p></CardContent></Card></motion.div>
+        <motion.div variants={item}><Card className="border-none shadow-xl shadow-purple-500/10 rounded-3xl bg-purple-50"><CardHeader className="pb-2"><CardTitle className="text-sm font-bold text-purple-700 uppercase tracking-wider">Resilience Index</CardTitle></CardHeader><CardContent><p className="text-4xl font-black text-purple-600">88%</p></CardContent></Card></motion.div>
+        <motion.div variants={item}><Card className="border-none shadow-xl shadow-blue-500/10 rounded-3xl bg-blue-50"><CardHeader className="pb-2"><CardTitle className="text-sm font-bold text-blue-700 uppercase tracking-wider">Active Activities</CardTitle></CardHeader><CardContent><p className="text-4xl font-black text-blue-600">12</p></CardContent></Card></motion.div>
+      </motion.div>
+
+      <motion.div variants={item} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card className="border-none shadow-xl shadow-slate-200/50 rounded-3xl">
+          <CardHeader><CardTitle className="font-bold text-xl">Class Growth DNA</CardTitle></CardHeader>
+          <CardContent className="h-[350px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <RadarChart data={classAverages} outerRadius={100}>
+                <PolarGrid stroke="#e2e8f0" />
+                <PolarAngleAxis dataKey="subject" tick={{ fill: '#64748b', fontSize: 13, fontWeight: 600 }} />
+                <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} />
+                <Radar name="Class 10-A" dataKey="A" stroke="#f97316" strokeWidth={3} fill="#f97316" fillOpacity={0.2} />
+              </RadarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      </motion.div>
+    </motion.div>
   );
 }

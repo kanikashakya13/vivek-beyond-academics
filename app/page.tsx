@@ -9,9 +9,20 @@ export default function LandingPage() {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const fadeInUp = {
+  // Fixed Types for Framer Motion
+  const fadeInUp: any = {
     hidden: { opacity: 0, y: 30 },
     show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } }
+  };
+
+  const staggerContainer: any = {
+      hidden: { opacity: 0 },
+      show: { opacity: 1, transition: { staggerChildren: 0.15 } }
+  };
+
+  const heroStagger: any = {
+    hidden: { opacity: 0 },
+    show: { opacity: 1, transition: { staggerChildren: 0.1 } }
   };
 
   return (
@@ -50,7 +61,7 @@ export default function LandingPage() {
 
       {/* Hero Section */}
       <main id="home" className="max-w-7xl mx-auto px-10 pt-24 pb-20 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center min-h-[85vh]">
-        <motion.div initial="hidden" animate="show" variants={{ show: { transition: { staggerChildren: 0.1 } } }} className="space-y-8">
+        <motion.div initial="hidden" animate="show" variants={heroStagger} className="space-y-8">
           <motion.div variants={fadeInUp} className="inline-flex items-center gap-2 bg-orange-100/80 text-orange-800 px-4 py-1.5 rounded-full text-xs font-bold tracking-wider uppercase border border-orange-200">
             <Sparkles className="w-3.5 h-3.5 text-orange-600" /> Inspired by Swami Vivekananda
           </motion.div>
@@ -145,7 +156,7 @@ export default function LandingPage() {
 
         <motion.div 
           initial="hidden" whileInView="show" viewport={{ once: true, margin: "-50px" }}
-          variants={{ show: { transition: { staggerChildren: 0.15 } } }}
+          variants={staggerContainer}
           className="grid grid-cols-1 md:grid-cols-3 gap-8"
         >
           <motion.div variants={fadeInUp} whileHover={{ y: -8 }} className="bg-white p-8 rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 transition-all group cursor-default">
