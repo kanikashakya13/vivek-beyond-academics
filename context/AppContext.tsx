@@ -15,11 +15,12 @@ type Student = {
 
 interface AppContextType {
   user: User;
-  login: (role: 'teacher' | 'admin') => void;
+  login: (role: 'teacher' | 'admin', customName?: string) => void;
   logout: () => void;
   students: Student[];
-  addDemoStudent: (student: Student) => void;
+  addStudent: (name: string, studentClass: string, focus: number, confidence: number, resilience: number) => Promise<void>;
   isLoading: boolean;
+  saveReflection: (content: string) => Promise<boolean>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -29,44 +30,51 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [students, setStudents] = useState<Student[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // 1. Fetch Students from Supabase when the app loads
   useEffect(() => {
     const fetchStudents = async () => {
       const { data, error } = await supabase.from('students').select('*');
       if (data && !error) {
         setStudents(data);
-      } else {
-        console.error("Failed to load students:", error);
       }
       setIsLoading(false);
     };
     fetchStudents();
   }, []);
 
-  const login = (role: 'teacher' | 'admin') => {
-    setUser(role === 'admin' ? { name: 'Admin User', role: 'admin' } : { name: 'Demo Teacher', role: 'teacher' });
+  const login = (role: 'teacher' | 'admin', customName?: string) => {
+    const defaultName = role === 'admin' ? 'System Administrator' : 'Demo Teacher';
+    setUser({ name: customName && customName.trim() !== '' ? customName : defaultName, role });
   };
 
   const logout = () => setUser(null);
 
-  // 2. Save new Demo Students to Supabase
-  const addDemoStudent = async (newStudent: Student) => {
-    // Update UI instantly
+  const addStudent = async (name: string, studentClass: string, focus: number, confidence: number, resilience: number) => {
+    const newStudent = {
+      id: `VBA-00${students.length + 1}`,
+      name,
+      class: studentClass,
+      focusScore: focus,
+      confidence,
+      resilience,
+    };
+    
     setStudents((prev) => [newStudent, ...prev]);
     
-    // Save to database in the background
-    await supabase.from('students').insert([{
-      id: newStudent.id,
-      name: newStudent.name,
-      class: newStudent.class,
-      focusScore: newStudent.focusScore,
-      confidence: newStudent.confidence,
-      resilience: newStudent.resilience
-    }]);
+    const { error } = await supabase.from('students').insert([newStudent]);
+    if (error) console.error("Error saving student to Supabase:", error);
+  };
+
+  const saveReflection = async (content: string) => {
+    const { error } = await supabase.from('reflections').insert([{ content }]);
+    if (error) {
+      console.error("Supabase reflection error:", error);
+      return false;
+    }
+    return true;
   };
 
   return (
-    <AppContext.Provider value={{ user, login, logout, students, addDemoStudent, isLoading }}>
+    <AppContext.Provider value={{ user, login, logout, students, addStudent, isLoading, saveReflection }}>
       {children}
     </AppContext.Provider>
   );
