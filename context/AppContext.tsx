@@ -1,52 +1,79 @@
 "use client";
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { supabase } from '@/lib/supabase';
 
-type UserRole = 'teacher' | 'admin' | null;
+type User = { name: string; role: 'teacher' | 'admin' } | null;
 
-interface AppState {
-  user: { name: string; role: UserRole } | null;
-  login: (role: UserRole) => void;
+type Student = {
+  id: string;
+  name: string;
+  class: string;
+  focusScore: number;
+  confidence: number;
+  resilience: number;
+};
+
+interface AppContextType {
+  user: User;
+  login: (role: 'teacher' | 'admin') => void;
   logout: () => void;
-  students: any[];
+  students: Student[];
+  addDemoStudent: (student: Student) => void;
+  isLoading: boolean;
 }
 
-const AppContext = createContext<AppState | undefined>(undefined);
+const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<{ name: string; role: UserRole } | null>(null);
-  
-  // Seed realistic demo data required by the master prompt
-  const [students] = useState([
-    { id: 'VBA-001', name: 'Aarav Sharma', class: '10-A', focusScore: 85, resilience: 92, confidence: 78 },
-    { id: 'VBA-002', name: 'Diya Patel', class: '10-A', focusScore: 90, resilience: 88, confidence: 85 },
-    { id: 'VBA-003', name: 'Kabir Singh', class: '10-B', focusScore: 65, resilience: 70, confidence: 95 },
-  ]);
+  const [user, setUser] = useState<User>(null);
+  const [students, setStudents] = useState<Student[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
+  // 1. Fetch Students from Supabase when the app loads
   useEffect(() => {
-    const savedUser = localStorage.getItem('vivek_auth');
-    if (savedUser) setUser(JSON.parse(savedUser));
+    const fetchStudents = async () => {
+      const { data, error } = await supabase.from('students').select('*');
+      if (data && !error) {
+        setStudents(data);
+      } else {
+        console.error("Failed to load students:", error);
+      }
+      setIsLoading(false);
+    };
+    fetchStudents();
   }, []);
 
-  const login = (role: UserRole) => {
-    const session = { name: role === 'teacher' ? 'Demo Teacher' : 'Admin User', role };
-    setUser(session);
-    localStorage.setItem('vivek_auth', JSON.stringify(session));
+  const login = (role: 'teacher' | 'admin') => {
+    setUser(role === 'admin' ? { name: 'Admin User', role: 'admin' } : { name: 'Demo Teacher', role: 'teacher' });
   };
 
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem('vivek_auth');
+  const logout = () => setUser(null);
+
+  // 2. Save new Demo Students to Supabase
+  const addDemoStudent = async (newStudent: Student) => {
+    // Update UI instantly
+    setStudents((prev) => [newStudent, ...prev]);
+    
+    // Save to database in the background
+    await supabase.from('students').insert([{
+      id: newStudent.id,
+      name: newStudent.name,
+      class: newStudent.class,
+      focusScore: newStudent.focusScore,
+      confidence: newStudent.confidence,
+      resilience: newStudent.resilience
+    }]);
   };
 
   return (
-    <AppContext.Provider value={{ user, login, logout, students }}>
+    <AppContext.Provider value={{ user, login, logout, students, addDemoStudent, isLoading }}>
       {children}
     </AppContext.Provider>
   );
 }
 
-export const useApp = () => {
+export function useApp() {
   const context = useContext(AppContext);
-  if (!context) throw new Error('useApp must be used within AppProvider');
+  if (context === undefined) throw new Error('useApp must be used within an AppProvider');
   return context;
-};
+}
