@@ -1,20 +1,43 @@
 "use client";
 import { useApp } from "@/context/AppContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from "recharts";
-import { Users, Activity, Target, BrainCircuit, ShieldCheck, Database, Server } from "lucide-react";
+import { Users, Activity, Target, BrainCircuit, ShieldCheck, Database, Server, RefreshCw } from "lucide-react";
+import { useState } from "react";
 
 export default function DashboardOverview() {
   const { user, students } = useApp();
+  const [isSyncing, setIsSyncing] = useState(false);
+
+  const handleForceSync = () => {
+    setIsSyncing(true);
+    // Simulate a database sync delay
+    setTimeout(() => {
+      setIsSyncing(false);
+      alert("Success: All offline classroom data has been synchronized with the cloud database.");
+    }, 1500);
+  };
 
   // --- ADMIN VIEW ---
   if (user?.role === 'admin') {
     return (
       <div className="space-y-8">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-900">System Administrator</h1>
-          <p className="text-slate-500">Manage platform usage and registered educators.</p>
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold text-slate-900">System Administrator</h1>
+            <p className="text-slate-500">Manage platform usage and registered educators.</p>
+          </div>
+          <Button 
+            onClick={handleForceSync} 
+            disabled={isSyncing}
+            className="bg-purple-600 hover:bg-purple-700 text-white shadow-md"
+          >
+            <RefreshCw className={`w-4 h-4 mr-2 ${isSyncing ? "animate-spin" : ""}`} />
+            {isSyncing ? "Syncing..." : "Force System Sync"}
+          </Button>
         </div>
+        
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <Card className="bg-purple-50 border-purple-100">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -54,7 +77,7 @@ export default function DashboardOverview() {
     );
   }
 
-  // --- TEACHER VIEW (Original Code) ---
+  // --- TEACHER VIEW ---
   const classAverages = [
     { subject: 'Concentration', A: 85, fullMark: 100 },
     { subject: 'Confidence', A: 78, fullMark: 100 },

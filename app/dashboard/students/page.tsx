@@ -3,19 +3,40 @@ import { useState } from "react";
 import { useApp } from "@/context/AppContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Search, UserPlus, Target, Brain, Shield, Users } from "lucide-react";
+import { Search, UserPlus } from "lucide-react";
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from "recharts";
 
 export default function StudentManagement() {
-  const { students } = useApp();
+  const { students: initialStudents } = useApp();
+  const [students, setStudents] = useState(initialStudents);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStudent, setSelectedStudent] = useState<any | null>(null);
 
   const filteredStudents = students.filter(s => s.name.toLowerCase().includes(searchTerm.toLowerCase()) || s.id.toLowerCase().includes(searchTerm.toLowerCase()));
 
+  // FIX: Authentic name generator for the Add Demo button
+  const indianNames = ["Rohan Gupta", "Priya Sharma", "Amit Patel", "Sneha Desai", "Karan Singh", "Anjali Verma", "Vikram Malhotra", "Neha Reddy"];
+  
+  const handleAddDemo = () => {
+    const randomName = indianNames[Math.floor(Math.random() * indianNames.length)];
+    const newStudent = {
+      id: `VBA-00${students.length + 1}`,
+      name: randomName,
+      class: "10-Demo",
+      focusScore: Math.floor(Math.random() * 30) + 65,
+      confidence: Math.floor(Math.random() * 30) + 65,
+      resilience: Math.floor(Math.random() * 30) + 65,
+    };
+    setStudents([newStudent, ...students]);
+    setSelectedStudent(newStudent);
+  };
+
   const getDNAData = (student: any) => [
-    { category: 'Focus', score: student.focusScore }, { category: 'Confidence', score: student.confidence },
-    { category: 'Resilience', score: student.resilience }, { category: 'Initiative', score: 85 }, { category: 'Collaboration', score: 78 },
+    { category: 'Focus', score: student.focusScore }, 
+    { category: 'Confidence', score: student.confidence },
+    { category: 'Resilience', score: student.resilience }, 
+    { category: 'Initiative', score: 85 }, 
+    { category: 'Collaboration', score: 78 },
   ];
 
   return (
@@ -23,7 +44,9 @@ export default function StudentManagement() {
       <div className="w-full lg:w-1/3 flex flex-col gap-4">
         <div className="flex justify-between items-center">
           <h2 className="text-2xl font-bold text-slate-900">Student Profiles</h2>
-          <Button size="sm" className="bg-orange-500 hover:bg-orange-600 text-white"><UserPlus className="w-4 h-4 mr-2" /> Add Demo</Button>
+          <Button onClick={handleAddDemo} size="sm" className="bg-orange-500 hover:bg-orange-600 text-white">
+            <UserPlus className="w-4 h-4 mr-2" /> Add Demo
+          </Button>
         </div>
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
