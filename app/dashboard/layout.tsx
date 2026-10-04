@@ -3,34 +3,36 @@ import { useApp } from "@/context/AppContext";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useEffect } from "react";
-import { BookOpen, Users, Brain, Shield, Target, LogOut, LayoutDashboard, ShieldAlert } from "lucide-react";
+import { BookOpen, Users, Bot, LogOut, LayoutDashboard, ShieldAlert } from "lucide-react";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { user, logout } = useApp();
   const router = useRouter();
 
-  // FIX: Next.js requires router.push to be inside useEffect, not in the render body
   useEffect(() => {
-    if (!user) {
-      router.push("/login");
-    }
+    if (!user) router.push("/login");
   }, [user, router]);
 
-  if (!user) return null; // Prevents the crash while redirecting
+  if (!user) return null;
 
   const handleLogout = () => {
     logout();
     router.push("/login");
   };
 
-  const navItems = [
-    { name: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
+  // Separated navigation links based on role
+  const teacherNav = [
+    { name: "Class Overview", icon: LayoutDashboard, href: "/dashboard" },
     { name: "Student Profiles", icon: Users, href: "/dashboard/students" },
-    { name: "Focus Journey", icon: Target, href: "/dashboard/focus" },
-    { name: "Confidence Mirror", icon: Brain, href: "/dashboard/confidence" },
-    { name: "Never Give Up", icon: Shield, href: "/dashboard/resilience" },
-    { name: "Challenge Lab", icon: ShieldAlert, href: "/dashboard/challenge-lab" },
+    { name: "AI Mentor", icon: Bot, href: "/dashboard/ai-mentor" },
   ];
+
+  const adminNav = [
+    { name: "System Dashboard", icon: LayoutDashboard, href: "/dashboard" },
+    { name: "Platform Settings", icon: ShieldAlert, href: "/dashboard" },
+  ];
+
+  const navItems = user.role === 'admin' ? adminNav : teacherNav;
 
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden">
@@ -52,13 +54,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               {user.name.charAt(0)}
             </div>
             <div>
-              <p className="text-white text-sm font-bold line-clamp-1">{user.name}</p>
-              <p className={`text-xs uppercase tracking-wider font-semibold ${user.role === 'admin' ? 'text-purple-400' : 'text-orange-400'}`}>
-                {user.role} PORTAL
+              <p className="text-white text-sm font-bold">{user.name}</p>
+              <p className={`text-xs font-semibold ${user.role === 'admin' ? 'text-purple-400' : 'text-orange-400'}`}>
+                {user.role === 'admin' ? 'ADMIN PORTAL' : 'TEACHER PORTAL'}
               </p>
             </div>
           </div>
-          <button onClick={handleLogout} className="flex items-center gap-3 px-4 py-3 w-full text-left rounded-lg hover:bg-red-900/50 hover:text-red-400 transition-colors">
+          <button onClick={handleLogout} className="flex items-center gap-3 px-4 py-3 w-full text-left rounded-lg hover:bg-red-900/50 hover:text-red-400">
             <LogOut className="w-5 h-5" /> Logout
           </button>
         </div>
