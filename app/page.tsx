@@ -1,7 +1,7 @@
 "use client";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { PlayCircle, ShieldCheck, Award, BookOpen, Brain, Target, Shield } from "lucide-react";
+import { PlayCircle, ShieldCheck, Award, BookOpen, Brain, Target, Shield, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function LandingPage() {
@@ -10,57 +10,93 @@ export default function LandingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FDFBF7] text-gray-900 font-sans overflow-x-hidden">
-      {/* Restored Navigation */}
-      <nav className="flex justify-between items-center py-4 px-8 bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-gray-100">
-        <div className="flex items-center gap-2 font-bold text-xl tracking-tight cursor-pointer" onClick={() => scrollTo('home')}>
-          <BookOpen className="text-orange-500" />
-          <span>VIVEK <span className="text-gray-400 font-normal text-sm">| Beyond Academics</span></span>
+    <div className="min-h-screen bg-[#FAF7F2] text-slate-900 font-sans overflow-x-hidden selection:bg-orange-500 selection:text-white">
+      {/* Navbar */}
+      <nav className="flex justify-between items-center py-5 px-10 bg-white/70 backdrop-blur-xl sticky top-0 z-50 border-b border-orange-100/50">
+        <div className="flex items-center gap-3 font-extrabold text-xl tracking-tight cursor-pointer" onClick={() => scrollTo('home')}>
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-orange-500 to-amber-400 flex items-center justify-center text-white shadow-md shadow-orange-500/20">
+            <BookOpen className="w-5 h-5" />
+          </div>
+          <span>VIVEK <span className="text-orange-600 font-semibold text-xs px-2 py-0.5 bg-orange-50 rounded-full ml-1">Beyond Academics</span></span>
         </div>
-        <div className="hidden md:flex gap-6 text-sm font-medium text-gray-600">
-          <button onClick={() => scrollTo('home')} className="hover:text-orange-500 transition-colors">Home</button>
-          <button onClick={() => scrollTo('about')} className="hover:text-orange-500 transition-colors">About</button>
-          <button onClick={() => scrollTo('philosophy')} className="hover:text-orange-500 transition-colors">Philosophy</button>
-          <button onClick={() => scrollTo('features')} className="hover:text-orange-500 transition-colors">Features</button>
-          <button onClick={() => scrollTo('privacy')} className="hover:text-orange-500 transition-colors">Privacy & Ethics</button>
+        <div className="hidden md:flex gap-8 text-sm font-medium text-slate-600">
+          <button onClick={() => scrollTo('home')} className="hover:text-orange-600 transition-colors">Home</button>
+          <button onClick={() => scrollTo('about')} className="hover:text-orange-600 transition-colors">About</button>
+          <button onClick={() => scrollTo('philosophy')} className="hover:text-orange-600 transition-colors">Philosophy</button>
+          <button onClick={() => scrollTo('features')} className="hover:text-orange-600 transition-colors">Features</button>
         </div>
-        <div className="flex gap-4">
+        <div className="flex gap-4 items-center">
           <Link href="/login">
-            <Button variant="ghost" className="text-red-500 hover:text-red-600 font-bold">Demo Login</Button>
+            <Button variant="ghost" className="text-slate-700 hover:text-orange-600 font-bold">Demo Login</Button>
           </Link>
           <Link href="/login">
-            <Button className="bg-red-500 hover:bg-red-600 text-white rounded-full px-6">Get Started</Button>
+            <Button className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white rounded-full px-7 shadow-lg shadow-orange-500/25 transition-all hover:scale-105">Get Started</Button>
           </Link>
         </div>
       </nav>
 
       {/* Hero Section */}
-      <main id="home" className="max-w-7xl mx-auto px-8 pt-20 pb-16 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center min-h-[80vh]">
-        <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="space-y-6">
-          <p className="text-sm font-bold text-orange-500 tracking-widest uppercase">Beyond Marks, Building Minds</p>
-          <h1 className="text-5xl md:text-6xl font-extrabold leading-tight text-gray-900">
-            Education Is <br /><span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-orange-400">More Than Marks.</span>
+      <main id="home" className="max-w-7xl mx-auto px-10 pt-24 pb-20 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center min-h-[85vh]">
+        <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="space-y-8">
+          <div className="inline-flex items-center gap-2 bg-orange-100/80 text-orange-800 px-4 py-1.5 rounded-full text-xs font-bold tracking-wider uppercase border border-orange-200">
+            <Sparkles className="w-3.5 h-3.5 text-orange-600" /> Inspired by Swami Vivekananda
+          </div>
+          <h1 className="text-5xl md:text-7xl font-black leading-[1.1] text-slate-900 tracking-tight">
+            Education Is <br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-600 via-amber-600 to-orange-500">More Than Marks.</span>
           </h1>
-          <p className="text-lg text-gray-600 max-w-lg">
-            Discover the potential within every student. Empower teachers to nurture concentration, confidence, perseverance, and character beyond traditional exams.
+          <p className="text-lg text-slate-600 max-w-lg leading-relaxed">
+            Empower teachers and students to cultivate concentration, confidence, perseverance, and character beyond traditional examinations.
           </p>
-          <div className="flex flex-wrap gap-4 pt-4">
-            <Link href="/login"><Button className="bg-orange-500 hover:bg-orange-600 text-white rounded-full px-8 py-6 text-lg">Explore Platform</Button></Link>
-            <Link href="/student"><Button variant="outline" className="rounded-full px-8 py-6 text-lg gap-2"><PlayCircle className="w-5 h-5" /> Try Student Portal</Button></Link>
+          <div className="flex flex-wrap gap-4 pt-2">
+            <Link href="/login">
+              <Button className="bg-slate-900 hover:bg-slate-800 text-white rounded-full px-9 py-7 text-lg shadow-xl shadow-slate-900/10 hover:scale-105 transition-all">
+                Explore Platform
+              </Button>
+            </Link>
+            <Link href="/student">
+              <Button variant="outline" className="rounded-full px-8 py-7 text-lg border-2 border-slate-200 gap-3 hover:bg-white hover:border-orange-300 transition-all shadow-sm">
+                <PlayCircle className="w-5 h-5 text-orange-500" /> Student Portal
+              </Button>
+            </Link>
+          </div>
+
+          <div className="flex gap-12 pt-8 border-t border-slate-200/60">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-2xl bg-amber-100 flex items-center justify-center text-amber-600 font-bold"><Award className="w-6 h-6"/></div>
+              <div><p className="text-2xl font-black text-slate-900">7+</p><p className="text-xs text-slate-500 font-medium">Growth Metrics</p></div>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-100 flex items-center justify-center text-emerald-600 font-bold"><ShieldCheck className="w-6 h-6"/></div>
+              <div><p className="text-2xl font-black text-slate-900">100%</p><p className="text-xs text-slate-500 font-medium">Privacy Focused</p></div>
+            </div>
           </div>
         </motion.div>
 
-        <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.8, delay: 0.2 }} className="relative">
-          <div className="bg-white p-6 rounded-3xl shadow-2xl border border-gray-100 relative z-10">
-            <div className="bg-[#fcf5f3] rounded-2xl p-8 aspect-video flex flex-col justify-between">
-              <div className="flex justify-between items-start">
-                <span className="bg-white px-3 py-1 rounded-full text-xs font-bold text-gray-600">Focus Journey</span>
-                <span className="text-xs font-semibold text-orange-500">Student Concentrating</span>
+        {/* Floating Creative Card Graphic */}
+        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.8, delay: 0.2 }} className="relative">
+          <div className="absolute -inset-4 bg-gradient-to-r from-orange-500/20 to-amber-500/20 rounded-[40px] blur-2xl -z-10"></div>
+          <div className="bg-white/80 backdrop-blur-2xl p-8 rounded-[32px] shadow-2xl border border-white relative z-10 space-y-6">
+            <div className="flex justify-between items-center">
+              <span className="bg-orange-50 text-orange-700 px-3.5 py-1 rounded-full text-xs font-bold tracking-wide uppercase">Live Growth DNA</span>
+              <span className="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></span>
+            </div>
+            <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-6 text-white space-y-6 shadow-inner">
+              <div className="flex justify-between items-center text-sm font-medium text-slate-400">
+                <span>Concentration Index</span>
+                <span className="text-orange-400 font-bold">92% Optimal</span>
               </div>
-              <div className="flex justify-center items-center gap-8 my-8">
-                <motion.div animate={{ scale: [1, 1.1, 1] }} transition={{ repeat: Infinity, duration: 2 }} className="w-24 h-24 bg-red-400 rounded-full opacity-80"></motion.div>
-                <div className="h-1 flex-1 bg-gradient-to-r from-red-400 to-blue-400 rounded-full relative">
-                  <motion.div animate={{ left: ["0%", "100%", "0%"] }} transition={{ repeat: Infinity, duration: 3 }} className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-white border-2 border-orange-500 rounded-full" />
+              <div className="h-2 bg-slate-700 rounded-full overflow-hidden">
+                <motion.div initial={{ width: 0 }} animate={{ width: "92%" }} transition={{ duration: 1.5, ease: "easeOut" }} className="h-full bg-gradient-to-r from-orange-500 to-amber-400 rounded-full" />
+              </div>
+              <div className="grid grid-cols-2 gap-4 pt-2">
+                <div className="bg-white/10 p-3.5 rounded-xl backdrop-blur">
+                  <p className="text-xs text-slate-400">Perseverance</p>
+                  <p className="text-lg font-bold text-amber-300">High Stability</p>
+                </div>
+                <div className="bg-white/10 p-3.5 rounded-xl backdrop-blur">
+                  <p className="text-xs text-slate-400">Confidence</p>
+                  <p className="text-lg font-bold text-orange-300">Expanding</p>
                 </div>
               </div>
             </div>
@@ -68,50 +104,51 @@ export default function LandingPage() {
         </motion.div>
       </main>
 
-      {/* About & Philosophy Sections */}
-      <section id="about" className="py-20 bg-white">
-        <div className="max-w-4xl mx-auto px-8 text-center space-y-6">
-          <h2 className="text-3xl font-bold">About VIVEK</h2>
-          <p className="text-lg text-gray-600">Traditional academic examinations cannot fully represent a student's personal development. VIVEK is an AI-powered platform that supports teachers in recognizing and nurturing learning habits, confidence, and creativity.</p>
-        </div>
-      </section>
-
-      <section id="philosophy" className="py-20 bg-slate-900 text-white text-center">
-        <div className="max-w-4xl mx-auto px-8 space-y-8">
-          <BookOpen className="w-12 h-12 text-orange-500 mx-auto" />
-          <h2 className="text-3xl font-bold">Swami Vivekananda's Philosophy</h2>
-          <blockquote className="text-2xl font-light italic text-slate-300 border-l-4 border-orange-500 pl-6 mx-auto max-w-2xl text-left">
+      {/* Philosophy Section */}
+      <section id="philosophy" className="py-24 bg-slate-900 text-white relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-orange-500/10 rounded-full blur-[120px] pointer-events-none"></div>
+        <div className="max-w-4xl mx-auto px-10 text-center space-y-8 relative z-10">
+          <BookOpen className="w-14 h-14 text-orange-500 mx-auto" />
+          <h2 className="text-4xl font-black tracking-tight">Swami Vivekananda's Philosophy</h2>
+          <blockquote className="text-2xl md:text-3xl font-light italic text-slate-300 leading-relaxed border-l-4 border-orange-500 pl-6 text-left max-w-3xl mx-auto">
             "Education is the manifestation of the perfection already in man. To me the very essence of education is concentration of mind, not the collecting of facts."
           </blockquote>
         </div>
       </section>
 
-      {/* Features Section */}
-      <section id="features" className="py-20 bg-[#FDFBF7]">
-        <div className="max-w-7xl mx-auto px-8">
-          <h2 className="text-3xl font-bold text-center mb-12">Core Growth Modules</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 text-center">
-              <Target className="w-10 h-10 text-orange-500 mx-auto mb-4" />
-              <h3 className="font-bold text-xl mb-2">Focus Journey</h3>
-              <p className="text-gray-500">Train concentration through guided, unbroken time blocks and self-reflection.</p>
+      {/* Features Grid */}
+      <section id="features" className="py-24 max-w-7xl mx-auto px-10">
+        <div className="text-center max-w-2xl mx-auto space-y-4 mb-16">
+          <h2 className="text-3xl md:text-4xl font-black text-slate-900">Holistic Growth Modules</h2>
+          <p className="text-slate-600">Designed to nurture the mind, character, and inner resilience of every student.</p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="bg-white p-8 rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 hover:-translate-y-1 transition-transform group">
+            <div className="w-14 h-14 rounded-2xl bg-orange-50 text-orange-600 flex items-center justify-center mb-6 group-hover:bg-orange-500 group-hover:text-white transition-colors">
+              <Target className="w-7 h-7" />
             </div>
-            <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 text-center">
-              <Brain className="w-10 h-10 text-blue-500 mx-auto mb-4" />
-              <h3 className="font-bold text-xl mb-2">Confidence Mirror</h3>
-              <p className="text-gray-500">Develop self-assurance through 60-second speaking and presentation challenges.</p>
+            <h3 className="font-extrabold text-xl mb-3 text-slate-900">Focus Journey</h3>
+            <p className="text-slate-600 leading-relaxed">Train concentration through mindful time blocks and qualitative self-reflection.</p>
+          </div>
+          <div className="bg-white p-8 rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 hover:-translate-y-1 transition-transform group">
+            <div className="w-14 h-14 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mb-6 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+              <Brain className="w-7 h-7" />
             </div>
-            <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 text-center">
-              <Shield className="w-10 h-10 text-emerald-500 mx-auto mb-4" />
-              <h3 className="font-bold text-xl mb-2">Never Give Up</h3>
-              <p className="text-gray-500">Track resilience and perseverance by solving multi-level logic puzzles.</p>
+            <h3 className="font-extrabold text-xl mb-3 text-slate-900">Confidence Mirror</h3>
+            <p className="text-slate-600 leading-relaxed">Build self-assurance via guided speaking milestones and gentle expression prompts.</p>
+          </div>
+          <div className="bg-white p-8 rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 hover:-translate-y-1 transition-transform group">
+            <div className="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-6 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+              <Shield className="w-7 h-7" />
             </div>
+            <h3 className="font-extrabold text-xl mb-3 text-slate-900">Never Give Up</h3>
+            <p className="text-slate-600 leading-relaxed">Reward perseverance and trial-and-error learning over fixed, rigid test scores.</p>
           </div>
         </div>
       </section>
 
-      <footer id="privacy" className="bg-white py-12 border-t border-gray-200 text-center">
-        <p className="text-gray-500">VIVEK | Privacy & Ethics: We do not use facial recognition. Growth data is private to the classroom.</p>
+      <footer className="bg-white py-12 border-t border-slate-200 text-center text-sm text-slate-500">
+        <p>VIVEK | Beyond Academics • Built for Vivekananda Innovation Hackathon 2026</p>
       </footer>
     </div>
   );
