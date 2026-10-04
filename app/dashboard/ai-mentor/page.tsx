@@ -1,6 +1,6 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Bot, Send, Sparkles, User, Copy, Trash2, CheckCircle2 } from "lucide-react";
 
@@ -8,11 +8,12 @@ export default function AIMentor() {
   const [messages, setMessages] = useState<{ role: "user" | "ai"; content: string }[]>([
     {
       role: "ai",
-      content: "Hello! I am your VIVEK Growth Assistant. I can help you summarize student observations, suggest classroom activities, or create weekly development goals. What would you like to focus on today?"
+      content: "Hello! I am your VIVEK Growth Assistant powered by Gemini. I can help you summarize student observations, suggest classroom activities, or create weekly development goals. What would you like to focus on today?"
     }
   ]);
   const [inputValue, setInputValue] = useState("");
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll to bottom of chat
@@ -22,32 +23,41 @@ export default function AIMentor() {
     }
   }, [messages]);
 
-  const handleSend = (text: string) => {
-    if (!text.trim()) return;
+  const handleSend = async (text: string) => {
+    if (!text.trim() || isLoading) return;
 
-    // Add user message
+    // 1. Add user message to UI immediately
     const newMessages = [...messages, { role: "user" as const, content: text }];
     setMessages(newMessages);
     setInputValue("");
+    setIsLoading(true);
 
-    // Simulate AI processing delay
-    setTimeout(() => {
-      let aiResponse = "";
-      const lowerText = text.toLowerCase();
+    // 2. Add a temporary loading message
+    setMessages(prev => [...prev, { role: "ai", content: "Thinking..." }]);
 
-      // Rule-based demo responses
-      if (lowerText.includes("aarav") || lowerText.includes("focus")) {
-        aiResponse = "Based on Aarav's recent Focus Journey data, his concentration drops after 3 minutes. **Recommendation:** Offer shorter, 2-minute focus blocks and encourage him to take brief stretch breaks in between to build endurance gradually.";
-      } else if (lowerText.includes("confidence") || lowerText.includes("shy")) {
-        aiResponse = "For students struggling with confidence, I recommend the 'Explain Your Favorite Topic' activity from the Confidence Mirror. Letting them speak for 60 seconds about a topic they already love (like a hobby or sport) drastically lowers anxiety.";
-      } else if (lowerText.includes("goal") || lowerText.includes("class 10-a")) {
-        aiResponse = "**Weekly Goal for Class 10-A:** \n1. Complete two 5-minute Focus Journeys.\n2. Have every student leave at least one Peer Endorsement for a classmate.\n3. Log one Reflection Journal entry on 'What challenged me this week?'";
-      } else {
-        aiResponse = "That is a great observation. To support this, try breaking the task into smaller steps and asking the student to reflect on which specific part feels most challenging. Would you like me to generate a specific activity for this?";
-      }
-
-      setMessages([...newMessages, { role: "ai", content: aiResponse }]);
-    }, 1000);
+    try {
+      // 3. Call the real Gemini API route you created
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: text })
+      });
+      const data = await res.json();
+      
+      // 4. Replace "Thinking..." with the real AI response
+      setMessages(prev => {
+        const withoutLoading = prev.slice(0, -1);
+        return [...withoutLoading, { role: "ai", content: data.response }];
+      });
+    } catch (error) {
+      // Handle errors (e.g., if API key is missing or internet is down)
+      setMessages(prev => {
+        const withoutLoading = prev.slice(0, -1);
+        return [...withoutLoading, { role: "ai", content: "Error connecting to AI. Please check your API key in the .env.local file." }];
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleCopy = (content: string, index: number) => {
@@ -68,8 +78,8 @@ export default function AIMentor() {
         <div>
           <div className="flex items-center gap-3 mb-2">
             <h1 className="text-3xl font-bold text-slate-900">AI Mentor</h1>
-            <span className="bg-orange-100 text-orange-700 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider flex items-center gap-1">
-              <Sparkles className="w-3 h-3" /> Demo AI
+            <span className="bg-emerald-100 text-emerald-700 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider flex items-center gap-1 shadow-sm">
+              <Sparkles className="w-3 h-3" /> LIVE AI
             </span>
           </div>
           <p className="text-slate-500">Personalized insights and activity recommendations for your classroom.</p>
@@ -86,19 +96,20 @@ export default function AIMentor() {
           {SUGGESTED_PROMPTS.map((prompt, i) => (
             <Card 
               key={i} 
-              className="cursor-pointer border-slate-200 hover:border-orange-500 hover:shadow-md transition-all group bg-white"
+              className="cursor-pointer border-slate-200 hover:border-emerald-500 hover:shadow-md transition-all group bg-white"
               onClick={() => handleSend(prompt)}
             >
-              <CardContent className="p-4 text-sm text-slate-700 font-medium group-hover:text-orange-700">
+              <CardContent className="p-4 text-sm text-slate-700 font-medium group-hover:text-emerald-700">
                 "{prompt}"
               </CardContent>
             </Card>
           ))}
           
           <div className="mt-8 p-4 bg-slate-50 border border-slate-200 rounded-xl">
-            <h4 className="text-xs font-bold text-slate-500 uppercase mb-2">Privacy Note</h4>
-            <p className="text-xs text-slate-500 leading-relaxed">
-              This demo utilizes a local rule-based engine. No student personal data is being transmitted to external servers.
+            <h4 className="text-xs font-bold text-slate-500 uppercase mb-2">System Status</h4>
+            <p className="text-xs text-slate-500 leading-relaxed flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-green-500 inline-block animate-pulse"></span>
+              Connected to Gemini API
             </p>
           </div>
         </div>
@@ -107,13 +118,13 @@ export default function AIMentor() {
         <Card className="w-full lg:w-3/4 flex flex-col border-slate-200 shadow-sm overflow-hidden bg-white">
           <div 
             ref={scrollRef}
-            className="flex-1 overflow-y-auto p-6 space-y-6 bg-slate-50/50"
+            className="flex-1 overflow-y-auto p-6 space-y-6 bg-slate-50/50 scroll-smooth"
           >
             {messages.map((msg, idx) => (
               <div key={idx} className={`flex gap-4 ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
                 {msg.role === "ai" && (
-                  <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center shrink-0">
-                    <Bot className="w-6 h-6 text-orange-600" />
+                  <div className={`w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center shrink-0 ${msg.content === "Thinking..." ? "animate-pulse" : ""}`}>
+                    <Bot className="w-6 h-6 text-emerald-600" />
                   </div>
                 )}
                 
@@ -131,7 +142,7 @@ export default function AIMentor() {
                     </span>
                   ))}
 
-                  {msg.role === "ai" && (
+                  {msg.role === "ai" && msg.content !== "Thinking..." && (
                     <button 
                       onClick={() => handleCopy(msg.content, idx)}
                       className="absolute -right-10 top-2 p-2 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 opacity-0 group-hover:opacity-100 transition-opacity"
@@ -157,15 +168,16 @@ export default function AIMentor() {
               <input
                 type="text"
                 placeholder="Ask the Growth Assistant a question..."
-                className="w-full pl-4 pr-12 py-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all"
+                className="w-full pl-4 pr-12 py-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all disabled:opacity-50"
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleSend(inputValue)}
+                disabled={isLoading}
               />
               <Button 
-                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg bg-orange-500 hover:bg-orange-600 text-white w-10 h-10 p-0 flex items-center justify-center"
+                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white w-10 h-10 p-0 flex items-center justify-center disabled:opacity-50"
                 onClick={() => handleSend(inputValue)}
-                disabled={!inputValue.trim()}
+                disabled={!inputValue.trim() || isLoading}
               >
                 <Send className="w-4 h-4" />
               </Button>

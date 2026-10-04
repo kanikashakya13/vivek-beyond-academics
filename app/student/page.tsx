@@ -1,84 +1,60 @@
 "use client";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { useApp } from "@/context/AppContext";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useTelemetry } from "@/hooks/useTelemetry";
+import { Search, UserPlus, Target, Brain, Shield, Users } from "lucide-react";
+import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from "recharts";
 
-export default function StudentView() {
-  const router = useRouter();
-  const { focusSeconds, retries, addRetry } = useTelemetry();
-  const [answer, setAnswer] = useState("");
-  const [feedback, setFeedback] = useState("");
-  const [isComplete, setIsComplete] = useState(false);
+export default function StudentManagement() {
+  const { students } = useApp();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedStudent, setSelectedStudent] = useState<any | null>(null);
 
-  const checkAnswer = () => {
-    if (answer.toLowerCase().trim() === "echo") {
-      setFeedback("Correct! Great job persevering.");
-      setIsComplete(true);
-    } else {
-      setFeedback("Not quite. Try again!");
-      addRetry(); // Logs a failure/retry silently
-    }
-  };
+  const filteredStudents = students.filter(s => s.name.toLowerCase().includes(searchTerm.toLowerCase()) || s.id.toLowerCase().includes(searchTerm.toLowerCase()));
 
-  const finishTask = () => {
-    // Simulate offline save to local DB
-    const focusMins = Math.floor(focusSeconds / 60);
-    const sessionData = {
-      name: "Test Student (You)",
-      focusMins: focusMins < 1 ? 1 : focusMins, // Round up to 1 min for demo
-      retries: retries,
-      badges: 1
-    };
-    
-    // Save to local storage so teacher dashboard can read it
-    const existing = JSON.parse(localStorage.getItem("grit_sessions") || "[]");
-    localStorage.setItem("grit_sessions", JSON.stringify([...existing, sessionData]));
-    
-    router.push("/"); // Send back to dashboard
-  };
+  const getDNAData = (student: any) => [
+    { category: 'Focus', score: student.focusScore }, { category: 'Confidence', score: student.confidence },
+    { category: 'Resilience', score: student.resilience }, { category: 'Initiative', score: 85 }, { category: 'Collaboration', score: 78 },
+  ];
 
   return (
-    <div className="p-8 bg-gray-50 min-h-screen flex flex-col items-center justify-center">
-      <Card className="w-full max-w-lg">
-        <CardHeader>
-          <CardTitle>Logic Puzzle</CardTitle>
-          <p className="text-sm text-gray-500">Read carefully and don't give up!</p>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <p className="text-lg font-medium">"I speak without a mouth and hear without ears. I have no body, but I come alive with wind. What am I?"</p>
-          
-          <input 
-            type="text" 
-            placeholder="Type your answer..."
-            className="w-full p-2 border rounded"
-            value={answer}
-            onChange={(e) => setAnswer(e.target.value)}
-            disabled={isComplete}
-          />
-
-          {feedback && (
-            <p className={`text-sm font-bold ${isComplete ? "text-green-600" : "text-red-500"}`}>
-              {feedback}
-            </p>
-          )}
-
-          {!isComplete ? (
-            <div className="flex gap-2">
-              <Button onClick={checkAnswer} className="w-full bg-blue-600 hover:bg-blue-700 text-white">Submit Answer</Button>
+    <div className="flex flex-col lg:flex-row gap-8 h-[calc(100vh-8rem)]">
+      <div className="w-full lg:w-1/3 flex flex-col gap-4">
+        <div className="flex justify-between items-center">
+          <h2 className="text-2xl font-bold text-slate-900">Student Profiles</h2>
+          <Button size="sm" className="bg-orange-500 hover:bg-orange-600 text-white"><UserPlus className="w-4 h-4 mr-2" /> Add Demo</Button>
+        </div>
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+          <input type="text" placeholder="Search by name or ID..." className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg outline-none" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+        </div>
+        <div className="flex-1 overflow-y-auto space-y-3 pr-2">
+          {filteredStudents.map(student => (
+            <div key={student.id} onClick={() => setSelectedStudent(student)} className={`p-4 rounded-xl border cursor-pointer ${selectedStudent?.id === student.id ? 'border-orange-500 bg-orange-50' : 'border-slate-200 bg-white'}`}>
+              <h3 className="font-bold text-slate-900">{student.name}</h3>
+              <p className="text-xs text-slate-500">ID: {student.id} • Class {student.class}</p>
             </div>
-          ) : (
-            <Button onClick={finishTask} className="w-full bg-green-600 hover:bg-green-700 text-white">
-              Turn In Assignment
-            </Button>
-          )}
-        </CardContent>
-      </Card>
-      
-      {/* Hidden telemetry display just for the hackathon pitch so judges can see it working */}
-      <div className="mt-8 text-xs text-gray-400">
-        Telemetry Running: {focusSeconds}s focus | {retries} retries
+          ))}
+        </div>
+      </div>
+      <div className="w-full lg:w-2/3 bg-white border border-slate-200 rounded-2xl p-6 overflow-y-auto">
+        {selectedStudent ? (
+          <div className="space-y-8">
+            <h2 className="text-3xl font-bold text-slate-900">{selectedStudent.name}</h2>
+            <Card className="bg-slate-50 shadow-none border-none">
+              <CardHeader><CardTitle>Growth DNA</CardTitle></CardHeader>
+              <CardContent className="h-[300px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <RadarChart cx="50%" cy="50%" outerRadius="80%" data={getDNAData(selectedStudent)}>
+                    <PolarGrid stroke="#cbd5e1" /><PolarAngleAxis dataKey="category" tick={{ fill: '#475569', fontSize: 12 }} /><PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} />
+                    <Radar name="Student" dataKey="score" stroke="#f97316" fill="#f97316" fillOpacity={0.4} />
+                  </RadarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          </div>
+        ) : (<div className="h-full flex items-center justify-center text-slate-400">Select a student</div>)}
       </div>
     </div>
   );
