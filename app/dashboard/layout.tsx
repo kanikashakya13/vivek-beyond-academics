@@ -23,11 +23,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const teacherNav = [
     { name: "Class Overview", icon: LayoutDashboard, href: "/dashboard" },
     { name: "Student Profiles", icon: Users, href: "/dashboard/students" },
-    { name: "Growth Reports", icon: FileText, href: "/dashboard" }, // Routes to main for demo purposes
+    { name: "Growth Reports", icon: FileText, href: "/dashboard" }, 
     { name: "AI Mentor", icon: Bot, href: "/dashboard/ai-mentor" },
   ];
 
-  // FIX: Platform Settings now properly routes to /dashboard/settings
   const adminNav = [
     { name: "System Dashboard", icon: LayoutDashboard, href: "/dashboard" },
     { name: "Platform Settings", icon: ShieldAlert, href: "/dashboard/settings" },
@@ -36,37 +35,44 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const navItems = user.role === 'admin' ? adminNav : teacherNav;
 
   return (
-    <div className="flex h-screen bg-slate-50 overflow-hidden">
-      <aside className="w-64 bg-slate-900 text-slate-300 flex flex-col z-20">
-        <div className="h-20 flex items-center px-6 border-b border-slate-800">
-          <BookOpen className="text-orange-500 w-6 h-6 mr-2" />
-          <span className="text-white font-bold text-lg tracking-wider">VIVEK</span>
+    <div className="flex h-screen bg-[#FAF7F2] overflow-hidden font-sans">
+      <aside className="w-72 bg-white border-r border-slate-200/80 flex flex-col z-20 shadow-sm">
+        <div className="h-24 flex items-center px-8 border-b border-slate-100 gap-3">
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-orange-500 to-amber-400 flex items-center justify-center text-white shadow-md shadow-orange-500/20">
+            <BookOpen className="w-5 h-5" />
+          </div>
+          <div>
+            <span className="font-black text-slate-900 tracking-tight block text-base">VIVEK</span>
+            <span className="text-xs text-slate-500 font-bold tracking-wider uppercase">Beyond Academics</span>
+          </div>
         </div>
-        <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
+        
+        <nav className="flex-1 px-4 py-8 space-y-2 overflow-y-auto">
           {navItems.map((item) => (
-            <Link key={item.name} href={item.href} className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 hover:text-white transition-colors">
-              <item.icon className="w-5 h-5" /> {item.name}
+            <Link key={item.name} href={item.href} className="flex items-center gap-3.5 px-5 py-3.5 rounded-2xl font-bold text-slate-600 hover:bg-orange-50 hover:text-orange-600 transition-all group">
+              <item.icon className="w-5 h-5 text-slate-400 group-hover:text-orange-500 transition-colors" /> {item.name}
             </Link>
           ))}
         </nav>
-        <div className="p-4 border-t border-slate-800">
-          <div className="flex items-center gap-3 px-4 py-3 mb-2 bg-slate-800/50 rounded-xl">
-            <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-white ${user.role === 'admin' ? 'bg-purple-600' : 'bg-orange-500'}`}>
+
+        <div className="p-6 border-t border-slate-100">
+          <div className="flex items-center gap-4 px-2 mb-6">
+            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-black text-white shadow-lg ${user.role === 'admin' ? 'bg-purple-600 shadow-purple-600/20' : 'bg-orange-500 shadow-orange-500/20'}`}>
               {user.name.charAt(0)}
             </div>
             <div>
-              <p className="text-white text-sm font-bold truncate max-w-[120px]">{user.name}</p>
-              <p className={`text-xs font-semibold ${user.role === 'admin' ? 'text-purple-400' : 'text-orange-400'}`}>
-                {user.role === 'admin' ? 'ADMIN PORTAL' : 'TEACHER PORTAL'}
+              <p className="text-slate-900 text-sm font-black truncate max-w-[120px]">{user.name}</p>
+              <p className={`text-[10px] font-bold uppercase tracking-widest ${user.role === 'admin' ? 'text-purple-500' : 'text-orange-500'}`}>
+                {user.role} Portal
               </p>
             </div>
           </div>
-          <button onClick={handleLogout} className="flex items-center gap-3 px-4 py-3 w-full text-left rounded-lg hover:bg-red-900/50 hover:text-red-400 transition-colors">
+          <button onClick={handleLogout} className="flex items-center gap-3.5 px-5 py-3.5 w-full text-left rounded-2xl font-bold text-slate-600 hover:bg-red-50 hover:text-red-600 transition-colors">
             <LogOut className="w-5 h-5" /> Logout
           </button>
         </div>
       </aside>
-      <main className="flex-1 overflow-y-auto p-8 relative">{children}</main>
+      <main className="flex-1 overflow-y-auto p-12 relative">{children}</main>
     </div>
   );
 }
